@@ -190,18 +190,22 @@ const AppContent: React.FC = () => {
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="w-full mx-auto px-4 sm:px-6 lg:px-12">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Employee Dashboard</h1>
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center py-6 space-y-4 lg:space-y-0">
+            {/* Title Section */}
+            <div className="flex-shrink-0">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Employee Dashboard</h1>
               <p className="mt-1 text-sm text-gray-500">
                 Comprehensive pharmaceutical employee management system
               </p>
             </div>
-            <div className="flex items-center space-x-4">
-              <nav className="flex space-x-4">
+
+            {/* Navigation and Actions */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between lg:justify-end space-y-3 sm:space-y-0 sm:space-x-4 w-full lg:w-auto">
+              {/* Navigation Tabs */}
+              <nav className="flex space-x-1 sm:space-x-4">
                 <button
                   onClick={() => setViewMode('dashboard')}
-                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  className={`flex-1 sm:flex-initial px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     viewMode === 'dashboard'
                       ? 'bg-blue-100 text-blue-700'
                       : 'text-gray-500 hover:text-gray-700'
@@ -211,7 +215,7 @@ const AppContent: React.FC = () => {
                 </button>
                 <button
                   onClick={() => setViewMode('employees')}
-                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  className={`flex-1 sm:flex-initial px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     viewMode === 'employees'
                       ? 'bg-blue-100 text-blue-700'
                       : 'text-gray-500 hover:text-gray-700'
@@ -220,15 +224,18 @@ const AppContent: React.FC = () => {
                   Employees
                 </button>
               </nav>
+
+              {/* Action Buttons */}
               {viewMode === 'employees' && (
-                <div className="flex space-x-2">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
                   <Button
                     onClick={() => setIsExportModalOpen(true)}
                     variant="outline"
                     disabled={state.employees.length === 0}
+                    className="w-full sm:w-auto flex items-center justify-center"
                   >
                     <svg
-                      className="w-4 h-4 mr-2"
+                      className="w-4 h-4 sm:mr-2"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -240,10 +247,16 @@ const AppContent: React.FC = () => {
                         d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                       />
                     </svg>
-                    Export
+                    <span className="hidden sm:inline ml-0 sm:ml-2">Export</span>
+                    <span className="sm:hidden">Export Data</span>
                   </Button>
-                  <Button onClick={() => setIsFormModalOpen(true)} variant="primary">
-                    Add Employee
+                  <Button
+                    onClick={() => setIsFormModalOpen(true)}
+                    variant="primary"
+                    className="w-full sm:w-auto"
+                  >
+                    <span className="sm:hidden">Add New Employee</span>
+                    <span className="hidden sm:inline">Add Employee</span>
                   </Button>
                 </div>
               )}
