@@ -2,11 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { ErrorBoundary } from '@components/ErrorBoundary';
 import { EmployeeProvider, useEmployeeContext } from '@context/EmployeeContext';
-import { EmployeeTable } from '@components/EmployeeTable';
-import { EmployeeForm } from '@components/EmployeeForm';
-import { EmployeeFilters } from '@components/EmployeeFilters';
-import { DashboardSummary } from '@components/DashboardSummary';
-import { DashboardCharts } from '@components/DashboardCharts';
+import { EmployeeTable } from '@components/Employee/EmployeeTable';
+import { EmployeeForm } from '@components/Employee/EmployeeForm';
+import { EmployeeFilters } from '@components/Employee/EmployeeFilters';
+import { DashboardSummary } from '@components/Dashboard/DashboardSummary';
+import { DashboardCharts } from '@components/Dashboard/DashboardCharts';
 import { Modal } from '@components/ui/Modal';
 import { Button } from '@components/ui/Button';
 import { Spinner } from '@components/ui/Spinner';
