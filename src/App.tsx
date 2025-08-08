@@ -5,6 +5,7 @@ import { EmployeeProvider, useEmployeeContext } from '@context/EmployeeContext';
 import { EmployeeTable } from '@components/Employee/EmployeeTable';
 import { EmployeeForm } from '@components/Employee/EmployeeForm';
 import { EmployeeFilters } from '@components/Employee/EmployeeFilters';
+import { ExportModal } from '@components/Employee/ExportModal';
 import { DashboardSummary } from '@components/Dashboard/DashboardSummary';
 import { DashboardCharts } from '@components/Dashboard/DashboardCharts';
 import { Modal } from '@components/ui/Modal';
@@ -34,6 +35,7 @@ const AppContent: React.FC = () => {
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [deletingEmployee, setDeletingEmployee] = useState<Employee | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
 
@@ -219,9 +221,31 @@ const AppContent: React.FC = () => {
                 </button>
               </nav>
               {viewMode === 'employees' && (
-                <Button onClick={() => setIsFormModalOpen(true)} variant="primary">
-                  Add Employee
-                </Button>
+                <div className="flex space-x-2">
+                  <Button
+                    onClick={() => setIsExportModalOpen(true)}
+                    variant="outline"
+                    disabled={state.employees.length === 0}
+                  >
+                    <svg
+                      className="w-4 h-4 mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    Export
+                  </Button>
+                  <Button onClick={() => setIsFormModalOpen(true)} variant="primary">
+                    Add Employee
+                  </Button>
+                </div>
               )}
             </div>
           </div>
@@ -264,6 +288,19 @@ const AppContent: React.FC = () => {
                 Showing <span className="font-medium">{state.filteredEmployees.length}</span> of{' '}
                 <span className="font-medium">{state.employees.length}</span> employees
               </p>
+
+              {/* Quick Export Actions */}
+              {state.filteredEmployees.length > 0 && (
+                <div className="flex items-center space-x-2 text-sm text-gray-500">
+                  <span>Quick export:</span>
+                  <button
+                    onClick={() => setIsExportModalOpen(true)}
+                    className="text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    All Options
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Employee Table */}
@@ -293,6 +330,14 @@ const AppContent: React.FC = () => {
           isLoading={formLoading}
         />
       </Modal>
+
+      {/* Export Modal */}
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        employees={state.filteredEmployees}
+        totalCount={state.employees.length}
+      />
 
       {/* Delete Confirmation Modal */}
       <Modal
