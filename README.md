@@ -70,7 +70,7 @@ A comprehensive employee management system built for the pharmaceutical industry
 1. **Clone the repository**
 
    ```bash
-   git clone <repository-url>
+   git clone git@github.com:NischithRamakrishnegowda/employee-dashboard.git
    cd employee-dashboard
    ```
 
