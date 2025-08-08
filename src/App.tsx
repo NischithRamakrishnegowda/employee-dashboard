@@ -189,7 +189,7 @@ const AppContent: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="w-full mx-auto px-4 sm:px-6 lg:px-12">
+        <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center py-6 space-y-4 lg:space-y-0">
             {/* Title Section */}
             <div className="flex-shrink-0">
@@ -266,7 +266,7 @@ const AppContent: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="w-full mx-auto px-4 sm:px-6 lg:px-12 py-8">
+      <main className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {viewMode === 'dashboard' ? (
           <div className="space-y-8">
             {/* Summary Cards */}

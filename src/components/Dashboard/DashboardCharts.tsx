@@ -147,7 +147,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ employees }) =
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Employee Distribution by Department
         </h3>
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="100%" height={420}>
           <PieChart>
             <Pie
               data={departmentData}
@@ -172,7 +172,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ employees }) =
       {/* Salary Distribution Bar Chart */}
       <Card>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Salary Distribution</h3>
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="100%" height={420}>
           <BarChart data={salaryData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="range" />
@@ -188,7 +188,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ employees }) =
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Experience vs Salary Correlation
         </h3>
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="100%" height={420}>
           <ScatterChart data={scatterData}>
             <CartesianGrid />
             <XAxis type="number" dataKey="experience" name="Experience" unit=" years" />
@@ -207,10 +207,10 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ employees }) =
       {/* Department Metrics */}
       <Card>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Department Metrics</h3>
-        <ResponsiveContainer width="100%" height={400}>
+        <ResponsiveContainer width="100%" height={420}>
           <BarChart data={departmentMetrics}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" angle={-15} textAnchor="end" height={80} interval={0} />
+            <XAxis dataKey="name" angle={-25} textAnchor="end" height={100} interval={0} />
             <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
             <Tooltip
               formatter={(value: number) => [`$${value.toLocaleString()}`, 'Avg Salary']}
