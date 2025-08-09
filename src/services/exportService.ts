@@ -120,7 +120,7 @@ class ExportService {
     URL.revokeObjectURL(url);
   }
 
-  private generateFileName(format: ExportFormat, prefix: string = 'employees'): string {
+  private generateFileName(format: ExportFormat, prefix = 'employees'): string {
     const timestamp = new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-');
     return `${prefix}_${timestamp}.${format}`;
   }
@@ -156,7 +156,7 @@ class ExportService {
 
     // Prepare data for Excel
     const data = employees.map((employee) => {
-      const row: { [key: string]: any } = {};
+      const row: Record<string, string | number | boolean> = {};
       fields.forEach((field) => {
         row[field.label] = field.getValue(employee);
       });
@@ -191,7 +191,7 @@ class ExportService {
     const fields = EXPORT_FIELDS.filter((field) => selectedFields.includes(field.key));
 
     const data = employees.map((employee) => {
-      const obj: { [key: string]: any } = {};
+      const obj: Record<string, string | number | boolean> = {};
       fields.forEach((field) => {
         obj[field.key] = field.getValue(employee);
       });
@@ -237,11 +237,15 @@ class ExportService {
     }
   }
 
-  getExportPreview(employees: Employee[], selectedFields: string[], maxRows: number = 5): any[] {
+  getExportPreview(
+    employees: Employee[],
+    selectedFields: string[],
+    maxRows = 5,
+  ): Record<string, string | number | boolean>[] {
     const fields = EXPORT_FIELDS.filter((field) => selectedFields.includes(field.key));
 
     return employees.slice(0, maxRows).map((employee) => {
-      const obj: { [key: string]: any } = {};
+      const obj: Record<string, string | number | boolean> = {};
       fields.forEach((field) => {
         obj[field.label] = field.getValue(employee);
       });

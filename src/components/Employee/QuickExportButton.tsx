@@ -157,7 +157,7 @@ export const QuickExportButton: React.FC<QuickExportButtonProps> = ({
 
             <div className="border-t border-gray-100 mt-1">
               <div className="px-3 py-2 text-xs text-gray-400">
-                Default fields included. Use "Export" button for more options.
+                Default fields included. Use &ldquo;Export&rdquo; button for more options.
               </div>
             </div>
           </div>

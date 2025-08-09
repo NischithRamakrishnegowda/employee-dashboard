@@ -1,3 +1,4 @@
+// src/components/ui/Select.tsx
 import React, { forwardRef } from 'react';
 import { clsx } from 'clsx';
 
@@ -34,3 +35,5 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     );
   },
 );
+
+Select.displayName = 'Select';

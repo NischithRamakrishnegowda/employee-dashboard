@@ -210,7 +210,7 @@ const generateMockEmployees = (): Employee[] => {
   return employees;
 };
 
-let mockEmployees = generateMockEmployees();
+const mockEmployees = generateMockEmployees();
 
 // Simulate API delays
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

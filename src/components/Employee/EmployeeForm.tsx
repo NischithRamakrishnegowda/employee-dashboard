@@ -1,4 +1,4 @@
-// src/components/EmployeeForm.tsx
+// src/components/Employee/EmployeeForm.tsx
 import React, { useState, useEffect } from 'react';
 import { Employee, Department, Role, Skill } from '@models/employee';
 import { EmployeeFormData } from '@models/form';
@@ -328,9 +328,15 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
       {/* Specializations */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Specializations</label>
+        <label
+          htmlFor="specialization-input"
+          className="block text-sm font-medium text-gray-700 mb-2"
+        >
+          Specializations
+        </label>
         <div className="flex gap-2 mb-2">
           <Input
+            id="specialization-input"
             placeholder="Add specialization"
             value={specializationInput}
             onChange={(e) => setSpecializationInput(e.target.value)}
@@ -348,6 +354,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
                 type="button"
                 onClick={() => handleRemoveSpecialization(spec)}
                 className="ml-2 text-blue-600 hover:text-blue-800"
+                aria-label={`Remove ${spec} specialization`}
               >
                 ×
               </button>
@@ -357,8 +364,8 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
       </div>
 
       {/* Skills */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Skills</label>
+      <fieldset>
+        <legend className="block text-sm font-medium text-gray-700 mb-2">Skills</legend>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-40 overflow-y-auto border rounded-md p-3">
           {skills.map((skill) => (
             <label key={skill.id} className="flex items-center space-x-2">
@@ -372,7 +379,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
             </label>
           ))}
         </div>
-      </div>
+      </fieldset>
 
       {/* Active Status */}
       <div className="flex items-center space-x-2">

@@ -1,10 +1,9 @@
 // src/components/Employee/ExportModal.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Employee } from '@models/employee';
 import { exportService, EXPORT_FIELDS, ExportFormat } from '@services/exportService';
 import { Modal } from '@components/ui/Modal';
 import { Button } from '@components/ui/Button';
-import { Spinner } from '@components/ui/Spinner';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -12,6 +11,19 @@ interface ExportModalProps {
   employees: Employee[];
   totalCount: number;
 }
+
+// Move defaultFields outside component to avoid dependency issues
+const DEFAULT_FIELDS = [
+  'fullName',
+  'email',
+  'roleTitle',
+  'department',
+  'experienceYears',
+  'salary',
+  'location',
+  'startDate',
+  'isActive',
+];
 
 export const ExportModal: React.FC<ExportModalProps> = ({
   isOpen,
@@ -22,29 +34,10 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('csv');
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
   const [isExporting, setIsExporting] = useState(false);
-  const [previewData, setPreviewData] = useState<any[]>([]);
+  const [previewData, setPreviewData] = useState<Record<string, string | number | boolean>[]>([]);
   const [showPreview, setShowPreview] = useState(false);
 
-  // Default selected fields
-  const defaultFields = [
-    'fullName',
-    'email',
-    'roleTitle',
-    'department',
-    'experienceYears',
-    'salary',
-    'location',
-    'startDate',
-    'isActive',
-  ];
-
-  useEffect(() => {
-    if (isOpen && selectedFields.length === 0) {
-      setSelectedFields(defaultFields);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
+  const updatePreview = useCallback(() => {
     if (selectedFields.length > 0 && employees.length > 0) {
       try {
         const preview = exportService.getExportPreview(employees, selectedFields, 3);
@@ -55,6 +48,16 @@ export const ExportModal: React.FC<ExportModalProps> = ({
       }
     }
   }, [selectedFields, employees]);
+
+  useEffect(() => {
+    if (isOpen && selectedFields.length === 0) {
+      setSelectedFields(DEFAULT_FIELDS);
+    }
+  }, [isOpen, selectedFields.length]);
+
+  useEffect(() => {
+    updatePreview();
+  }, [updatePreview]);
 
   const formatOptions = [
     { value: 'csv' as ExportFormat, label: 'CSV', description: 'Comma-separated values' },
@@ -77,7 +80,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   };
 
   const handleSelectDefault = () => {
-    setSelectedFields(defaultFields);
+    setSelectedFields(DEFAULT_FIELDS);
   };
 
   const handleExport = async () => {
@@ -146,12 +149,14 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         </div>
 
         {/* Format Selection */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-3">Export Format</label>
+        <fieldset>
+          <legend className="block text-sm font-medium text-gray-700 mb-3">Export Format</legend>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {formatOptions.map((format) => (
               <label
                 key={format.value}
+                htmlFor={`format-${format.value}`}
+                aria-label={`Select ${format.label} format - ${format.description}`}
                 className={`relative flex cursor-pointer rounded-lg border p-4 focus:outline-none ${
                   selectedFormat === format.value
                     ? 'border-blue-500 ring-2 ring-blue-500 bg-blue-50'
@@ -160,29 +165,33 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               >
                 <input
                   type="radio"
+                  id={`format-${format.value}`}
                   name="format"
                   value={format.value}
                   checked={selectedFormat === format.value}
                   onChange={(e) => setSelectedFormat(e.target.value as ExportFormat)}
                   className="sr-only"
+                  aria-describedby={`format-${format.value}-desc`}
                 />
                 <div className="flex-1">
                   <div className="flex items-center">
                     <div className="text-sm font-medium text-gray-900">{format.label}</div>
                   </div>
-                  <div className="text-sm text-gray-500">{format.description}</div>
+                  <div id={`format-${format.value}-desc`} className="text-sm text-gray-500">
+                    {format.description}
+                  </div>
                 </div>
               </label>
             ))}
           </div>
-        </div>
+        </fieldset>
 
         {/* Field Selection */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <label className="block text-sm font-medium text-gray-700">
+            <span className="block text-sm font-medium text-gray-700">
               Select Fields to Export ({selectedFields.length} selected)
-            </label>
+            </span>
             <div className="flex space-x-2">
               <Button variant="outline" size="sm" onClick={handleSelectDefault}>
                 Default
@@ -198,10 +207,10 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 
           <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-4">
             {Object.entries(fieldsByCategory).map(([category, fields]) => (
-              <div key={category} className="mb-4 last:mb-0">
-                <h4 className="text-sm font-medium text-gray-900 mb-2 capitalize">
+              <fieldset key={category} className="mb-4 last:mb-0">
+                <legend className="text-sm font-medium text-gray-900 mb-2 capitalize">
                   {category} Information
-                </h4>
+                </legend>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {fields.map((field) => (
                     <label key={field.key} className="flex items-center space-x-2">
@@ -215,7 +224,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                     </label>
                   ))}
                 </div>
-              </div>
+              </fieldset>
             ))}
           </div>
         </div>
@@ -224,7 +233,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         {selectedFields.length > 0 && previewData.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-3">
-              <label className="block text-sm font-medium text-gray-700">Data Preview</label>
+              <span className="block text-sm font-medium text-gray-700">Data Preview</span>
               <Button variant="outline" size="sm" onClick={() => setShowPreview(!showPreview)}>
                 {showPreview ? 'Hide' : 'Show'} Preview
               </Button>

@@ -83,8 +83,8 @@ const applyFiltersAndSort = (
   // Apply sorting
   if (sort.field) {
     filtered.sort((a, b) => {
-      let aValue: any = a[sort.field!];
-      let bValue: any = b[sort.field!];
+      let aValue: string | number = a[sort.field!] as string | number;
+      let bValue: string | number = b[sort.field!] as string | number;
 
       // Handle nested properties
       if (sort.field === 'department') {
@@ -127,15 +127,16 @@ function employeeReducer(state: EmployeeState, action: EmployeeAction): Employee
         error: null,
       };
 
-    case 'ADD_EMPLOYEE':
+    case 'ADD_EMPLOYEE': {
       const newEmployees = [...state.employees, action.payload];
       return {
         ...state,
         employees: newEmployees,
         filteredEmployees: applyFiltersAndSort(newEmployees, state.filters, state.sort),
       };
+    }
 
-    case 'UPDATE_EMPLOYEE':
+    case 'UPDATE_EMPLOYEE': {
       const updatedEmployees = state.employees.map((emp) =>
         emp.id === action.payload.id ? action.payload : emp,
       );
@@ -144,22 +145,25 @@ function employeeReducer(state: EmployeeState, action: EmployeeAction): Employee
         employees: updatedEmployees,
         filteredEmployees: applyFiltersAndSort(updatedEmployees, state.filters, state.sort),
       };
+    }
 
-    case 'DELETE_EMPLOYEE':
+    case 'DELETE_EMPLOYEE': {
       const remainingEmployees = state.employees.filter((emp) => emp.id !== action.payload);
       return {
         ...state,
         employees: remainingEmployees,
         filteredEmployees: applyFiltersAndSort(remainingEmployees, state.filters, state.sort),
       };
+    }
 
-    case 'SET_FILTERS':
+    case 'SET_FILTERS': {
       const newFilters = { ...state.filters, ...action.payload };
       return {
         ...state,
         filters: newFilters,
         filteredEmployees: applyFiltersAndSort(state.employees, newFilters, state.sort),
       };
+    }
 
     case 'SET_SORT':
       return {
@@ -192,14 +196,6 @@ interface EmployeeContextType {
 }
 
 const EmployeeContext = createContext<EmployeeContextType | undefined>(undefined);
-
-export const useEmployeeContext = () => {
-  const context = useContext(EmployeeContext);
-  if (!context) {
-    throw new Error('useEmployeeContext must be used within EmployeeProvider');
-  }
-  return context;
-};
 
 interface EmployeeProviderProps {
   children: React.ReactNode;
@@ -253,4 +249,12 @@ export const EmployeeProvider: React.FC<EmployeeProviderProps> = ({ children }) 
   };
 
   return <EmployeeContext.Provider value={value}>{children}</EmployeeContext.Provider>;
+};
+
+export const useEmployeeContext = () => {
+  const context = useContext(EmployeeContext);
+  if (!context) {
+    throw new Error('useEmployeeContext must be used within EmployeeProvider');
+  }
+  return context;
 };

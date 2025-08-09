@@ -1,3 +1,4 @@
+// src/components/ui/Modal.tsx
 import React, { useEffect } from 'react';
 import { clsx } from 'clsx';
 
@@ -35,14 +36,31 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children, 
     };
   }, [isOpen, onClose]);
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  const handleBackdropKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClose();
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         <div
-          className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
-          onClick={onClose}
+          className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 cursor-pointer"
+          onClick={handleBackdropClick}
+          onKeyDown={handleBackdropKeyDown}
+          tabIndex={0}
+          role="button"
+          aria-label="Close modal"
         />
 
         <div

@@ -1,4 +1,4 @@
-// src/components/EmployeeFilters.tsx
+// src/components/Employee/EmployeeFilters.tsx
 import React from 'react';
 import { Department } from '@models/employee';
 import { FilterState } from '@models/form';
@@ -110,7 +110,7 @@ export const EmployeeFilters: React.FC<EmployeeFiltersProps> = ({
 
             {filters.searchTerm && (
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                Search: "{filters.searchTerm}"
+                Search: &ldquo;{filters.searchTerm}&rdquo;
                 <button
                   onClick={() => onFiltersChange({ searchTerm: '' })}
                   className="ml-1 text-blue-600 hover:text-blue-800"

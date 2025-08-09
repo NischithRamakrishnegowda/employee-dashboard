@@ -1,4 +1,4 @@
-// src/components/DashboardCharts.tsx
+// src/components/Dashboard/DashboardCharts.tsx
 import React, { useMemo } from 'react';
 import {
   PieChart,
@@ -20,6 +20,29 @@ import { Card } from '@components/ui/Card';
 
 interface DashboardChartsProps {
   employees: Employee[];
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    color: string;
+    dataKey: string;
+    value: string | number;
+  }>;
+  label?: string;
+}
+
+interface ScatterTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    payload: {
+      name: string;
+      department: string;
+      experience: number;
+      salary: number;
+      rating: number;
+    };
+  }>;
 }
 
 export const DashboardCharts: React.FC<DashboardChartsProps> = ({ employees }) => {
@@ -78,6 +101,14 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ employees }) =
 
   // Department metrics data
   const departmentMetrics = useMemo(() => {
+    interface DepartmentMetric {
+      name: string;
+      count: number;
+      totalSalary: number;
+      totalExperience: number;
+      totalRating: number;
+    }
+
     const metrics = employees.reduce(
       (acc, emp) => {
         const deptName = emp.department.name;
@@ -96,10 +127,10 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ employees }) =
         acc[deptName].totalRating += emp.performanceRating;
         return acc;
       },
-      {} as Record<string, any>,
+      {} as Record<string, DepartmentMetric>,
     );
 
-    return Object.values(metrics).map((dept: any) => ({
+    return Object.values(metrics).map((dept) => ({
       name: dept.name,
       avgSalary: Math.round(dept.totalSalary / dept.count),
       avgExperience: Math.round((dept.totalExperience / dept.count) * 10) / 10,
@@ -108,12 +139,12 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ employees }) =
     }));
   }, [employees]);
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="font-medium">{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index) => (
             <p key={index} style={{ color: entry.color }}>
               {`${entry.dataKey}: ${entry.value}`}
             </p>
@@ -124,7 +155,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ employees }) =
     return null;
   };
 
-  const ScatterTooltip = ({ active, payload }: any) => {
+  const ScatterTooltip: React.FC<ScatterTooltipProps> = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (

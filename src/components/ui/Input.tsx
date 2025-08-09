@@ -1,3 +1,4 @@
+// src/components/ui/Input.tsx
 import React, { forwardRef } from 'react';
 import { clsx } from 'clsx';
 
@@ -27,3 +28,5 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     );
   },
 );
+
+Input.displayName = 'Input';
