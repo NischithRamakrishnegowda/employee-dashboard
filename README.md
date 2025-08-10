@@ -14,7 +14,7 @@ A comprehensive employee management system built for the pharmaceutical industry
 ### Technical Highlights
 
 - **Type Safety**: Comprehensive TypeScript interfaces and strict configuration
-- **State Management**: Context API with useReducer for complex state logic
+- **State Management**: Context API with useReducer for state logic
 - **Error Handling**: Error boundaries with user-friendly fallbacks
 - **Performance**: Optimized renders and efficient data filtering
 - **Accessibility**: WCAG compliant with proper ARIA labels and keyboard navigation
@@ -26,10 +26,10 @@ A comprehensive employee management system built for the pharmaceutical industry
 │   ├── App.css
 │   ├── App.tsx
 │   ├── components
-│   │   ├── Dashboard
+│   │   ├── dashboard
 │   │   │   ├── DashboardCharts.tsx
 │   │   │   └── DashboardSummary.tsx
-│   │   ├── Employee
+│   │   ├── employee
 │   │   │   ├── EmployeeFilters.tsx
 │   │   │   ├── EmployeeForm.tsx
 │   │   │   ├── EmployeeTable.tsx
@@ -46,15 +46,27 @@ A comprehensive employee management system built for the pharmaceutical industry
 │   │       └── Spinner.tsx
 │   ├── context
 │   │   └── EmployeeContext.tsx
+│   ├── hooks
+│   │   ├── useEmployeeData.ts
+│   │   ├── useEmployeeForm.ts
+│   │   ├── useExportModal.ts
+│   │   ├── useFormValidation.ts
+│   │   └── useQuickExport.ts
 │   ├── index.css
 │   ├── main.tsx
 │   ├── models
 │   │   ├── api.ts
 │   │   ├── employee.ts
+│   │   ├── exportformat.ts
 │   │   └── form.ts
 │   ├── services
 │   │   ├── employeeService.ts
 │   │   └── exportService.ts
+│   ├── utils
+│   │   ├── chartData.ts
+│   │   ├── constants.ts
+│   │   ├── formatters.ts
+│   │   └── summaryCalculations.ts
 ```
 
 ## 🛠 Setup Instructions
@@ -100,8 +112,6 @@ npm run dev          # Start development server
 npm run build        # Build for production
 npm run preview      # Preview production build
 npm run lint         # Run ESLint
-npm run lint:fix     # Fix ESLint errors
-npm run type-check   # Run TypeScript compiler
 ```
 
 ## 🏗 Architecture Decisions
@@ -248,7 +258,6 @@ npm run type-check   # Run TypeScript compiler
 - [ ] ESLint warnings addressed
 - [ ] Responsive design tested
 - [ ] Accessibility verified
-- [ ] Performance impact assessed
 
 ### Development Dependencies
 
