@@ -69,7 +69,7 @@ A comprehensive employee management system built for the pharmaceutical industry
 │   │   └── summaryCalculations.ts
 ```
 
-## 🛠 Setup Instructions
+## Setup Instructions
 
 ### Prerequisites
 
@@ -114,7 +114,7 @@ npm run preview      # Preview production build
 npm run lint         # Run ESLint
 ```
 
-## 🏗 Architecture Decisions
+## Architecture Decisions
 
 ### State Management
 
