@@ -1,4 +1,4 @@
-// src/components/Dashboard/DashboardCharts.tsx
+// src/components/dashboard/DashboardCharts.tsx
 import React, { useMemo } from 'react';
 import {
   PieChart,
@@ -17,6 +17,13 @@ import {
 } from 'recharts';
 import { Employee } from '@models/employee';
 import { Card } from '@components/ui/Card';
+import {
+  generateDepartmentData,
+  generateSalaryData,
+  generateScatterData,
+  generateDepartmentMetrics,
+} from '@utils/chartData';
+import { COLORS } from '@utils/constants';
 
 interface DashboardChartsProps {
   employees: Employee[];
@@ -46,98 +53,11 @@ interface ScatterTooltipProps {
 }
 
 export const DashboardCharts: React.FC<DashboardChartsProps> = ({ employees }) => {
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
-
-  // Department distribution data
-  const departmentData = useMemo(() => {
-    const departmentCounts = employees.reduce(
-      (acc, emp) => {
-        const deptName = emp.department.name;
-        acc[deptName] = (acc[deptName] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
-
-    return Object.entries(departmentCounts).map(([name, value]) => ({
-      name: name.replace(' & ', ' & \n'), // Break long department names
-      value,
-      percentage: ((value / employees.length) * 100).toFixed(1),
-    }));
-  }, [employees]);
-
-  // Salary distribution data
-  const salaryData = useMemo(() => {
-    const ranges = [
-      { range: '$40k-60k', min: 40000, max: 60000 },
-      { range: '$60k-80k', min: 60000, max: 80000 },
-      { range: '$80k-100k', min: 80000, max: 100000 },
-      { range: '$100k-120k', min: 100000, max: 120000 },
-      { range: '$120k+', min: 120000, max: Infinity },
-    ];
-
-    return ranges
-      .map(({ range, min, max }) => {
-        const count = employees.filter((emp) => emp.salary >= min && emp.salary < max).length;
-        return {
-          range,
-          count,
-          percentage: ((count / employees.length) * 100).toFixed(1),
-        };
-      })
-      .filter((item) => item.count > 0);
-  }, [employees]);
-
-  // Experience vs Salary scatter plot data
-  const scatterData = useMemo(() => {
-    return employees.map((emp) => ({
-      experience: emp.experienceYears,
-      salary: emp.salary,
-      name: `${emp.firstName} ${emp.lastName}`,
-      department: emp.department.name,
-      rating: emp.performanceRating,
-    }));
-  }, [employees]);
-
-  // Department metrics data
-  const departmentMetrics = useMemo(() => {
-    interface DepartmentMetric {
-      name: string;
-      count: number;
-      totalSalary: number;
-      totalExperience: number;
-      totalRating: number;
-    }
-
-    const metrics = employees.reduce(
-      (acc, emp) => {
-        const deptName = emp.department.name;
-        if (!acc[deptName]) {
-          acc[deptName] = {
-            name: deptName,
-            count: 0,
-            totalSalary: 0,
-            totalExperience: 0,
-            totalRating: 0,
-          };
-        }
-        acc[deptName].count += 1;
-        acc[deptName].totalSalary += emp.salary;
-        acc[deptName].totalExperience += emp.experienceYears;
-        acc[deptName].totalRating += emp.performanceRating;
-        return acc;
-      },
-      {} as Record<string, DepartmentMetric>,
-    );
-
-    return Object.values(metrics).map((dept) => ({
-      name: dept.name,
-      avgSalary: Math.round(dept.totalSalary / dept.count),
-      avgExperience: Math.round((dept.totalExperience / dept.count) * 10) / 10,
-      avgRating: Math.round((dept.totalRating / dept.count) * 10) / 10,
-      count: dept.count,
-    }));
-  }, [employees]);
+  // Chart data using utils
+  const departmentData = useMemo(() => generateDepartmentData(employees), [employees]);
+  const salaryData = useMemo(() => generateSalaryData(employees), [employees]);
+  const scatterData = useMemo(() => generateScatterData(employees), [employees]);
+  const departmentMetrics = useMemo(() => generateDepartmentMetrics(employees), [employees]);
 
   const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -227,7 +147,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ employees }) =
               type="number"
               dataKey="salary"
               name="Salary"
-              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+              tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
             />
             <Tooltip content={<ScatterTooltip />} />
             <Scatter name="Employees" dataKey="salary" fill="#8884d8" fillOpacity={0.6} />
@@ -242,9 +162,9 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ employees }) =
           <BarChart data={departmentMetrics}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" angle={-25} textAnchor="end" height={100} interval={0} />
-            <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`} />
+            <YAxis tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`} />
             <Tooltip
-              formatter={(value: number) => [`$${value.toLocaleString()}`, 'Avg Salary']}
+              formatter={(value: number) => [`${value.toLocaleString()}`, 'Avg Salary']}
               labelFormatter={(label) => `Department: ${label}`}
             />
             <Bar dataKey="avgSalary" fill="#00C49F" />

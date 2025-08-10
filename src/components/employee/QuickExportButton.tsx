@@ -1,8 +1,8 @@
-// src/components/Employee/QuickExportButton.tsx
-import React, { useState, useRef, useEffect } from 'react';
+// src/components/employee/QuickExportButton.tsx
+import React from 'react';
 import { Employee } from '@models/employee';
-import { exportService, ExportFormat } from '@services/exportService';
 import { Button } from '@components/ui/Button';
+import { useQuickExport } from '@hooks/useQuickExport';
 
 interface QuickExportButtonProps {
   employees: Employee[];
@@ -15,52 +15,8 @@ export const QuickExportButton: React.FC<QuickExportButtonProps> = ({
   disabled = false,
   size = 'sm',
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen]);
-
-  const defaultFields = [
-    'fullName',
-    'email',
-    'roleTitle',
-    'department',
-    'experienceYears',
-    'salary',
-    'location',
-    'startDate',
-    'isActive',
-  ];
-
-  const handleQuickExport = async (format: ExportFormat) => {
-    setIsExporting(true);
-    setIsOpen(false);
-
-    try {
-      await exportService.exportData(employees, format, defaultFields);
-    } catch (error) {
-      console.error('Quick export error:', error);
-      alert(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsExporting(false);
-    }
-  };
+  const { isOpen, setIsOpen, isExporting, dropdownRef, handleQuickExport } =
+    useQuickExport(employees);
 
   if (disabled || employees.length === 0) {
     return (
@@ -109,10 +65,6 @@ export const QuickExportButton: React.FC<QuickExportButtonProps> = ({
       {isOpen && (
         <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
           <div className="py-1">
-            <div className="px-3 py-2 text-xs text-gray-500 border-b border-gray-100">
-              Quick Export ({employees.length} records)
-            </div>
-
             <button
               onClick={() => handleQuickExport('csv')}
               className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"

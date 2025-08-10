@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { ErrorBoundary } from '@components/ErrorBoundary';
 import { EmployeeProvider, useEmployeeContext } from '@context/EmployeeContext';
-import { EmployeeTable } from '@components/Employee/EmployeeTable';
-import { EmployeeForm } from '@components/Employee/EmployeeForm';
-import { EmployeeFilters } from '@components/Employee/EmployeeFilters';
-import { ExportModal } from '@components/Employee/ExportModal';
-import { DashboardSummary } from '@components/Dashboard/DashboardSummary';
-import { DashboardCharts } from '@components/Dashboard/DashboardCharts';
+import { EmployeeTable } from '@components/employee/EmployeeTable';
+import { EmployeeForm } from '@components/employee/EmployeeForm';
+import { EmployeeFilters } from '@components/employee/EmployeeFilters';
+import { ExportModal } from '@components/employee/ExportModal';
+import { DashboardSummary } from '@components/dashboard/DashboardSummary';
+import { DashboardCharts } from '@components/dashboard/DashboardCharts';
 import { Modal } from '@components/ui/Modal';
 import { Button } from '@components/ui/Button';
 import { Spinner } from '@components/ui/Spinner';
@@ -401,5 +401,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-// Test comment
-// Another test comment

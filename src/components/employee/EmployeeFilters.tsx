@@ -1,4 +1,4 @@
-// src/components/Employee/EmployeeFilters.tsx
+// src/components/employee/EmployeeFilters.tsx
 import React from 'react';
 import { Department } from '@models/employee';
 import { FilterState } from '@models/form';

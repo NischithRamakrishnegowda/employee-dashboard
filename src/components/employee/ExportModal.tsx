@@ -1,9 +1,11 @@
-// src/components/Employee/ExportModal.tsx
-import React, { useState, useEffect, useCallback } from 'react';
+// src/components/employee/ExportModal.tsx
+import React from 'react';
 import { Employee } from '@models/employee';
-import { exportService, EXPORT_FIELDS, ExportFormat } from '@services/exportService';
 import { Modal } from '@components/ui/Modal';
 import { Button } from '@components/ui/Button';
+import { useExportModal } from '@hooks/useExportModal';
+import { formatOptions, getFieldsByCategory } from '@utils/constants';
+import { ExportFormat } from '@services/exportService';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -12,111 +14,34 @@ interface ExportModalProps {
   totalCount: number;
 }
 
-// Move defaultFields outside component to avoid dependency issues
-const DEFAULT_FIELDS = [
-  'fullName',
-  'email',
-  'roleTitle',
-  'department',
-  'experienceYears',
-  'salary',
-  'location',
-  'startDate',
-  'isActive',
-];
-
 export const ExportModal: React.FC<ExportModalProps> = ({
   isOpen,
   onClose,
   employees,
   totalCount,
 }) => {
-  const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('csv');
-  const [selectedFields, setSelectedFields] = useState<string[]>([]);
-  const [isExporting, setIsExporting] = useState(false);
-  const [previewData, setPreviewData] = useState<Record<string, string | number | boolean>[]>([]);
-  const [showPreview, setShowPreview] = useState(false);
+  const {
+    selectedFormat,
+    setSelectedFormat,
+    selectedFields,
+    isExporting,
+    previewData,
+    showPreview,
+    setShowPreview,
+    handleFieldToggle,
+    handleSelectAll,
+    handleSelectNone,
+    handleSelectDefault,
+    handleExport,
+  } = useExportModal(employees, isOpen);
 
-  const updatePreview = useCallback(() => {
-    if (selectedFields.length > 0 && employees.length > 0) {
-      try {
-        const preview = exportService.getExportPreview(employees, selectedFields, 3);
-        setPreviewData(preview);
-      } catch (error) {
-        console.error('Error generating preview:', error);
-        setPreviewData([]);
-      }
-    }
-  }, [selectedFields, employees]);
+  const fieldsByCategory = getFieldsByCategory();
 
-  useEffect(() => {
-    if (isOpen && selectedFields.length === 0) {
-      setSelectedFields(DEFAULT_FIELDS);
-    }
-  }, [isOpen, selectedFields.length]);
-
-  useEffect(() => {
-    updatePreview();
-  }, [updatePreview]);
-
-  const formatOptions = [
-    { value: 'csv' as ExportFormat, label: 'CSV', description: 'Comma-separated values' },
-    { value: 'excel' as ExportFormat, label: 'Excel', description: 'Microsoft Excel format' },
-    { value: 'json' as ExportFormat, label: 'JSON', description: 'JavaScript Object Notation' },
-  ];
-
-  const handleFieldToggle = (fieldKey: string) => {
-    setSelectedFields((prev) =>
-      prev.includes(fieldKey) ? prev.filter((key) => key !== fieldKey) : [...prev, fieldKey],
-    );
-  };
-
-  const handleSelectAll = () => {
-    setSelectedFields(EXPORT_FIELDS.map((field) => field.key));
-  };
-
-  const handleSelectNone = () => {
-    setSelectedFields([]);
-  };
-
-  const handleSelectDefault = () => {
-    setSelectedFields(DEFAULT_FIELDS);
-  };
-
-  const handleExport = async () => {
-    if (selectedFields.length === 0) {
-      alert('Please select at least one field to export');
-      return;
-    }
-
-    setIsExporting(true);
-    try {
-      await exportService.exportData(employees, selectedFormat, selectedFields);
+  const handleExportClick = async () => {
+    const success = await handleExport();
+    if (success) {
       onClose();
-    } catch (error) {
-      console.error('Export error:', error);
-      alert(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsExporting(false);
     }
-  };
-
-  const fieldsByCategory = {
-    basic: EXPORT_FIELDS.filter((field) =>
-      ['firstName', 'lastName', 'fullName', 'email'].includes(field.key),
-    ),
-    role: EXPORT_FIELDS.filter((field) =>
-      ['roleTitle', 'roleLevel', 'roleCategory', 'department'].includes(field.key),
-    ),
-    experience: EXPORT_FIELDS.filter((field) =>
-      ['experienceYears', 'experienceLevel', 'performanceRating'].includes(field.key),
-    ),
-    employment: EXPORT_FIELDS.filter((field) =>
-      ['salary', 'location', 'startDate', 'isActive'].includes(field.key),
-    ),
-    skills: EXPORT_FIELDS.filter((field) =>
-      ['specialization', 'skills', 'skillCount'].includes(field.key),
-    ),
   };
 
   return (
@@ -169,7 +94,13 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                   name="format"
                   value={format.value}
                   checked={selectedFormat === format.value}
-                  onChange={(e) => setSelectedFormat(e.target.value as ExportFormat)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Runtime check to ensure the value is valid
+                    if (formatOptions.some((option) => option.value === value)) {
+                      setSelectedFormat(value as ExportFormat);
+                    }
+                  }}
                   className="sr-only"
                   aria-describedby={`format-${format.value}-desc`}
                 />
@@ -288,7 +219,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           </Button>
           <Button
             variant="primary"
-            onClick={handleExport}
+            onClick={handleExportClick}
             disabled={isExporting || selectedFields.length === 0}
             isLoading={isExporting}
           >

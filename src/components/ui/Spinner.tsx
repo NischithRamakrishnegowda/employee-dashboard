@@ -1,3 +1,4 @@
+// src/components/ui/Spinner.tsx
 import clsx from 'clsx';
 
 export const Spinner: React.FC<{ size?: 'sm' | 'md' | 'lg' }> = ({ size = 'md' }) => {

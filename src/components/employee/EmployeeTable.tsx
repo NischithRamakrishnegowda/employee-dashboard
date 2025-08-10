@@ -1,9 +1,10 @@
-// src/components/EmployeeTable.tsx
+// src/components/employee/EmployeeTable.tsx
 import React from 'react';
 import { Employee } from '@models/employee';
 import { SortState } from '@models/form';
 import { Button } from '@components/ui/Button';
 import { Badge } from '@components/ui/Badge';
+import { formatCurrency, formatDate, getExperienceLevel } from '@utils/formatters';
 
 interface EmployeeTableProps {
   employees: Employee[];
@@ -22,30 +23,6 @@ export const EmployeeTable: React.FC<EmployeeTableProps> = ({
   sortState,
   isLoading = false,
 }) => {
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    }).format(date);
-  };
-
-  const getExperienceLevel = (years: number): string => {
-    if (years <= 2) return 'Junior';
-    if (years <= 5) return 'Mid';
-    if (years <= 8) return 'Senior';
-    return 'Expert';
-  };
-
   const getSortIcon = (field: keyof Employee) => {
     if (sortState.field !== field) {
       return (

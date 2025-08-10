@@ -1,8 +1,10 @@
-// src/components/Employee/EmployeeForm.tsx
-import React, { useState, useEffect } from 'react';
-import { Employee, Department, Role, Skill } from '@models/employee';
+// src/components/employee/EmployeeForm.tsx
+import React from 'react';
+import { Employee } from '@models/employee';
 import { EmployeeFormData } from '@models/form';
-import { employeeService } from '@services/employeeService';
+import { useEmployeeData } from '@hooks/useEmployeeData';
+import { useFormValidation } from '@hooks/useFormValidation';
+import { useEmployeeForm } from '@hooks/useEmployeeForm';
 import { Input } from '@components/ui/Input';
 import { Select } from '@components/ui/Select';
 import { Button } from '@components/ui/Button';
@@ -15,185 +17,39 @@ interface EmployeeFormProps {
   isLoading?: boolean;
 }
 
-interface FormErrors {
-  [key: string]: string;
-}
-
 export const EmployeeForm: React.FC<EmployeeFormProps> = ({
   employee,
   onSubmit,
   onCancel,
   isLoading = false,
 }) => {
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [roles, setRoles] = useState<Role[]>([]);
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [specializationInput, setSpecializationInput] = useState('');
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [formData, setFormData] = useState<EmployeeFormData>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    roleId: '',
-    departmentId: '',
-    experienceYears: 0,
-    specialization: [],
-    salary: 0,
-    location: '',
-    startDate: new Date().toISOString().split('T')[0],
-    skills: [],
-    performanceRating: 3,
-    isActive: true,
-  });
+  const { departments, roles, skills } = useEmployeeData();
+  const { errors, validateForm, clearError } = useFormValidation();
+  const {
+    formData,
+    selectedSkills,
+    specializationInput,
+    setSpecializationInput,
+    handleInputChange,
+    handleSkillToggle,
+    handleAddSpecialization,
+    handleRemoveSpecialization,
+  } = useEmployeeForm(employee);
 
-  useEffect(() => {
-    const loadFormData = async () => {
-      try {
-        const [departmentsData, rolesData, skillsData] = await Promise.all([
-          employeeService.getDepartments(),
-          employeeService.getRoles(),
-          employeeService.getSkills(),
-        ]);
-
-        setDepartments(departmentsData);
-        setRoles(rolesData);
-        setSkills(skillsData);
-      } catch (error) {
-        console.error('Error loading form data:', error);
-      }
-    };
-
-    loadFormData();
-
-    // Populate form if editing existing employee
-    if (employee) {
-      setFormData({
-        firstName: employee.firstName,
-        lastName: employee.lastName,
-        email: employee.email,
-        roleId: employee.role.id,
-        departmentId: employee.department.id,
-        experienceYears: employee.experienceYears,
-        specialization: employee.specialization,
-        salary: employee.salary,
-        location: employee.location,
-        startDate: employee.startDate.toISOString().split('T')[0],
-        skills: employee.skills.map((skill) => skill.id),
-        performanceRating: employee.performanceRating,
-        isActive: employee.isActive,
-      });
-      setSelectedSkills(employee.skills.map((skill) => skill.id));
-    }
-  }, [employee]);
-
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
-    }
-
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    if (!formData.roleId) {
-      newErrors.roleId = 'Role is required';
-    }
-
-    if (!formData.departmentId) {
-      newErrors.departmentId = 'Department is required';
-    }
-
-    if (formData.experienceYears < 0 || formData.experienceYears > 50) {
-      newErrors.experienceYears = 'Experience years must be between 0 and 50';
-    }
-
-    if (formData.salary <= 0) {
-      newErrors.salary = 'Salary must be greater than 0';
-    }
-
-    if (!formData.location.trim()) {
-      newErrors.location = 'Location is required';
-    }
-
-    if (!formData.startDate) {
-      newErrors.startDate = 'Start date is required';
-    }
-
-    if (formData.performanceRating < 1 || formData.performanceRating > 5) {
-      newErrors.performanceRating = 'Performance rating must be between 1 and 5';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]:
-        type === 'number'
-          ? parseFloat(value) || 0
-          : type === 'checkbox'
-            ? (e.target as HTMLInputElement).checked
-            : value,
-    }));
-
+  const handleInputChangeWithValidation = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    handleInputChange(e);
     // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
+    if (errors[e.target.name]) {
+      clearError(e.target.name);
     }
-  };
-
-  const handleSkillToggle = (skillId: string) => {
-    setSelectedSkills((prev) => {
-      const newSelection = prev.includes(skillId)
-        ? prev.filter((id) => id !== skillId)
-        : [...prev, skillId];
-
-      setFormData((prevForm) => ({
-        ...prevForm,
-        skills: newSelection,
-      }));
-
-      return newSelection;
-    });
-  };
-
-  const handleAddSpecialization = () => {
-    if (
-      specializationInput.trim() &&
-      !formData.specialization.includes(specializationInput.trim())
-    ) {
-      setFormData((prev) => ({
-        ...prev,
-        specialization: [...prev.specialization, specializationInput.trim()],
-      }));
-      setSpecializationInput('');
-    }
-  };
-
-  const handleRemoveSpecialization = (spec: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      specialization: prev.specialization.filter((s) => s !== spec),
-    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (validateForm()) {
+    if (validateForm(formData)) {
       try {
         await onSubmit(formData);
       } catch (error) {
@@ -219,7 +75,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           label="First Name"
           name="firstName"
           value={formData.firstName}
-          onChange={handleInputChange}
+          onChange={handleInputChangeWithValidation}
           error={errors.firstName}
           required
         />
@@ -228,7 +84,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           label="Last Name"
           name="lastName"
           value={formData.lastName}
-          onChange={handleInputChange}
+          onChange={handleInputChangeWithValidation}
           error={errors.lastName}
           required
         />
@@ -239,7 +95,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
         name="email"
         type="email"
         value={formData.email}
-        onChange={handleInputChange}
+        onChange={handleInputChangeWithValidation}
         error={errors.email}
         required
       />
@@ -249,7 +105,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           label="Department"
           name="departmentId"
           value={formData.departmentId}
-          onChange={handleInputChange}
+          onChange={handleInputChangeWithValidation}
           options={departmentOptions}
           error={errors.departmentId}
           required
@@ -259,7 +115,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           label="Role"
           name="roleId"
           value={formData.roleId}
-          onChange={handleInputChange}
+          onChange={handleInputChangeWithValidation}
           options={roleOptions}
           error={errors.roleId}
           required
@@ -274,7 +130,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           min="0"
           max="50"
           value={formData.experienceYears}
-          onChange={handleInputChange}
+          onChange={handleInputChangeWithValidation}
           error={errors.experienceYears}
           required
         />
@@ -286,7 +142,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           min="0"
           step="1000"
           value={formData.salary}
-          onChange={handleInputChange}
+          onChange={handleInputChangeWithValidation}
           error={errors.salary}
           required
         />
@@ -299,7 +155,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           max="5"
           step="0.1"
           value={formData.performanceRating}
-          onChange={handleInputChange}
+          onChange={handleInputChangeWithValidation}
           error={errors.performanceRating}
           required
         />
@@ -310,7 +166,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           label="Location"
           name="location"
           value={formData.location}
-          onChange={handleInputChange}
+          onChange={handleInputChangeWithValidation}
           error={errors.location}
           required
         />
@@ -320,7 +176,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           name="startDate"
           type="date"
           value={formData.startDate}
-          onChange={handleInputChange}
+          onChange={handleInputChangeWithValidation}
           error={errors.startDate}
           required
         />
@@ -388,7 +244,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
           name="isActive"
           id="isActive"
           checked={formData.isActive}
-          onChange={handleInputChange}
+          onChange={handleInputChangeWithValidation}
           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
         />
         <label htmlFor="isActive" className="text-sm font-medium text-gray-700">

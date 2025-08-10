@@ -1,49 +1,24 @@
-// src/components/DashboardSummary.tsx
+// src/components/dashboard/DashboardSummary.tsx
 import React from 'react';
 import { Employee } from '@models/employee';
 import { Card } from '@components/ui/Card';
+import { calculateSummaryMetrics } from '@utils/summaryCalculations';
+import { formatCurrency } from '@utils/formatters';
 
 interface DashboardSummaryProps {
   employees: Employee[];
 }
 
 export const DashboardSummary: React.FC<DashboardSummaryProps> = ({ employees }) => {
-  // Calculate metrics
-  const totalEmployees = employees.length;
-  const activeEmployees = employees.filter((emp) => emp.isActive).length;
-  const averageSalary =
-    employees.length > 0
-      ? employees.reduce((sum, emp) => sum + emp.salary, 0) / employees.length
-      : 0;
-  const averageExperience =
-    employees.length > 0
-      ? employees.reduce((sum, emp) => sum + emp.experienceYears, 0) / employees.length
-      : 0;
-  const averageRating =
-    employees.length > 0
-      ? employees.reduce((sum, emp) => sum + emp.performanceRating, 0) / employees.length
-      : 0;
-
-  // Department with most employees
-  const departmentCounts = employees.reduce(
-    (acc, emp) => {
-      acc[emp.department.name] = (acc[emp.department.name] || 0) + 1;
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
-
-  const topDepartment = Object.entries(departmentCounts).sort(([, a], [, b]) => b - a)[0];
-
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
+  const {
+    totalEmployees,
+    activeEmployees,
+    averageSalary,
+    averageExperience,
+    averageRating,
+    departmentCounts,
+    topDepartment,
+  } = calculateSummaryMetrics(employees);
 
   const summaryCards = [
     {
